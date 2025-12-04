@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import ListadoPeliculas from "../../peliculas/componentes/ListadoPeliculas";
-import type LandingPageDTO from "../modelos/LandigPageDTO";
+import type LandingPageDTO from "../modelos/LandigPage.ts";
 import clienteAPI from "../../../api/clienteAxios";
 import AlertaContext from "../../../utilidades/AlertContext";
 
