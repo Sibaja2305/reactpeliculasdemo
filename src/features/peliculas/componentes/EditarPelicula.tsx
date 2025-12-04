@@ -23,6 +23,7 @@ export default function EditarPelicula() {
       const pelicula = res.data.pelicula;
 
       const peliculaCreacion: PeliculaCreacion = {
+        id: pelicula.id,
         titulo: pelicula.titulo,
         fechaLanzamiento: formatearFecha(pelicula.fechaLanzamiento),
         trailer: pelicula.trailer,

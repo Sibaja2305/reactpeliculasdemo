@@ -4,82 +4,83 @@ import { useState } from "react";
 import clienteAPI from "../../../api/clienteAxios";
 
 export default function TypeaheadActores(props: TypeaheadActoresProps) {
-const [actores, setActores] = useState<ActorPelicula[]>([]);
-const [cargando, setCargando] = useState(false);
+  const [actores, setActores] = useState<ActorPelicula[]>([]);
+  const [cargando, setCargando] = useState(false);
 
-function manejarBusqueda(query: string) {
-  setCargando(true);
-  clienteAPI.get<ActorPelicula[]>(`/actores/${query}`)
-  .then(res => {
-    setActores(res.data);
-    setCargando(false);
-  })
+  function manejarBusqueda(query: string) {
+    setCargando(true);
 
-}
+    clienteAPI
+      .get<ActorPelicula[]>(`/actores/${query}`)
+      .then((res) => {
+        setActores(res.data);
+        setCargando(false);
+      })
+      .catch(() => setCargando(false));
+  }
+
   const [elementoArrastrado, setElementoArrastrado] = useState<
     ActorPelicula | undefined
   >(undefined);
+
   const manejarDragStar = (actor: ActorPelicula) => {
     setElementoArrastrado(actor);
   };
+
   const manejarDragOver = (actor: ActorPelicula) => {
-    if (!elementoArrastrado || actor.id === elementoArrastrado.id) {
-      return;
-    }
-    const actores = [...props.actores];
-    const indiceDesde = actores.findIndex(
-      (x) => x.id === elementoArrastrado.id
-    );
-    const indiceHasta = actores.findIndex((x) => x.id === actor.id);
+    if (!elementoArrastrado) return;
+    if (actor.id === elementoArrastrado.id) return;
+
+    const copia = [...props.actores];
+
+    const indiceDesde = copia.findIndex((x) => x.id === elementoArrastrado.id);
+    const indiceHasta = copia.findIndex((x) => x.id === actor.id);
+
     if (indiceDesde !== -1 && indiceHasta !== -1) {
-      [actores[indiceDesde], actores[indiceHasta]] = [
-        actores[indiceHasta],
-        actores[indiceDesde],
+      [copia[indiceDesde], copia[indiceHasta]] = [
+        copia[indiceHasta],
+        copia[indiceDesde],
       ];
-      props.onAdd(actores);
+
+      props.onAdd(copia);
     }
   };
-  const seleccion: ActorPelicula[] = [];
+
   return (
     <>
       <label>Actores</label>
+
       <AsyncTypeahead
-      isLoading={cargando}
+        id="typeahead-actores"
+        isLoading={cargando}
+        minLength={2}
+        flip
         onSearch={manejarBusqueda}
-        id="typeahead"
-        onChange={(actores: Option[]) => {
-          const actoresSeleccionados = actores[0] as ActorPelicula;
-          if (
-            props.actores.findIndex((x) => x.id === actoresSeleccionados.id) ===
-            -1
-          ) {
-            actoresSeleccionados.personaje = "";
-            props.onAdd([...props.actores, actoresSeleccionados]);
-          }
-        }}
         options={actores}
-        labelKey={(opcion: Option) => {
-          const actor = opcion as ActorPelicula;
-          return actor.nombre;
-        }}
+        labelKey="nombre"
         filterBy={["nombre"]}
         placeholder="Escriba el nombre del actor..."
-        minLength={2}
-        flip={true}
-        selected={seleccion}
-        renderMenuItemChildren={(opcion: Option) => {
-          const actor = opcion as ActorPelicula;
+        selected={[]}
+        onChange={(selected) => {
+          const actor = selected[0] as ActorPelicula | undefined;
 
+          if (!actor) return;
+
+          const existe = props.actores.some((x) => x.id === actor.id);
+
+          if (!existe) {
+            actor.personaje = "";
+            props.onAdd([...props.actores, actor]);
+          }
+        }}
+        renderMenuItemChildren={(opcion) => {
+          const actor = opcion as ActorPelicula;
           return (
             <>
               <img
                 alt="imagen actor"
                 src={actor.foto}
-                style={{
-                  height: "64px",
-                  marginRight: "10px",
-                  width: "64px",
-                }}
+                style={{ height: "64px", marginRight: "10px", width: "64px" }}
               />
               <span>{actor.nombre}</span>
             </>
@@ -87,32 +88,40 @@ function manejarBusqueda(query: string) {
         }}
       />
 
-      <ul className="list-group">
+      {/* LISTA DE ACTORES SELECCIONADOS */}
+      <ul className="list-group mt-3">
         {props.actores.map((actor) => (
           <li
-            draggable={true}
+            key={actor.id}
+            draggable
             onDragStart={() => manejarDragStar(actor)}
             onDragOver={() => manejarDragOver(actor)}
             className="list-group-item d-flex align-items-center"
-            key={actor.id}
           >
+            {/* FOTO */}
             <div style={{ width: "70px" }}>
               <img style={{ height: "60px" }} src={actor.foto} alt="foto" />
             </div>
+
+            {/* NOMBRE */}
             <div style={{ width: "150px", marginLeft: "1rem" }}>
               {actor.nombre}
             </div>
+
+            {/* PERSONAJE */}
             <div className="flex-grow-1 mx-3">
               <input
+                type="text"
                 className="form-control"
                 placeholder="Personaje"
-                type="text"
                 value={actor.personaje}
-                onChange={(e) => {
-                  props.onCambioPersonaje(actor.id, e.currentTarget.value);
-                }}
+                onChange={(e) =>
+                  props.onCambioPersonaje(actor.id, e.currentTarget.value)
+                }
               />
             </div>
+
+            {/* ELIMINAR */}
             <span
               role="button"
               className="badge text-bg-secondary"

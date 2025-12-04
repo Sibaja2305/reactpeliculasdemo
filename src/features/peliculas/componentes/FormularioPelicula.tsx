@@ -173,4 +173,4 @@ const reglasDeValidacion = yup.object({
   fechaLanzamiento: yup
     .string()
     .required("La fecha de lanzamiento es obligatoria"),
-});
+}).noUnknown(false);

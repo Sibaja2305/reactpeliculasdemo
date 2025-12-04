@@ -4,29 +4,26 @@ import type LandingPageDTO from "../modelos/LandigPageDTO";
 import clienteAPI from "../../../api/clienteAxios";
 import AlertaContext from "../../../utilidades/AlertContext";
 
-export default function LandigPage (){
-   const [peliculas, setPeliculas] = useState<LandingPageDTO>({});
+export default function LandigPage() {
+  const [peliculas, setPeliculas] = useState<LandingPageDTO>({});
 
-     useEffect(() =>{
-      cargarDatos();
-     }, [])
-     function cargarDatos(){
-          clienteAPI.get<LandingPageDTO>('/peliculas/landing')
-       .then(res => setPeliculas(res.data));
-     
-    }
-   
-    return (
+  useEffect(() => {
+    cargarDatos();
+  }, []);
+  function cargarDatos() {
+    clienteAPI
+      .get<LandingPageDTO>("/peliculas/landing")
+      .then((res) => setPeliculas(res.data));
+  }
 
-        <>
-       
-        <AlertaContext.Provider value={() => cargarDatos()}>
-       
-      <h3>En cines</h3>
-      <ListadoPeliculas peliculas={peliculas.enCines} />
-      <h3>Proximamente</h3>
-      <ListadoPeliculas peliculas={peliculas.proximosEstrenos} />
+  return (
+    <>
+      <AlertaContext.Provider value={() => cargarDatos()}>
+        <h3>En cines</h3>
+        <ListadoPeliculas peliculas={peliculas.enCines} />
+        <h3>Proximamente</h3>
+        <ListadoPeliculas peliculas={peliculas.proximosEstrenos} />
       </AlertaContext.Provider>
-        </>
-    )
+    </>
+  );
 }
