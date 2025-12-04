@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from "react-router";
 import Boton from "../../../components/boton";
 import type Pelicula from "../modelos/pelicula.model";
-import styles from "./Peliculaindividual.module.css";
+import styles from "./PeliculaIndividual.module.css";
 import confirmar from "../../../utilidades/Confirmar";
 import clienteAPI from "../../../api/clienteAxios";
 import { useContext } from "react";
